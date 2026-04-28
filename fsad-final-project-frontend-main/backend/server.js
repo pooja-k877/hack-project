@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path"); // ✅ added
 const db = require("./db");
 
 const app = express();
@@ -7,10 +8,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// test route
+/* ================= TEST ================= */
+
 app.get("/", (req, res) => {
   res.send("Backend running 🚀");
 });
+
+/* ================= USERS ================= */
 
 // insert data
 app.post("/add", (req, res) => {
@@ -30,6 +34,7 @@ app.post("/add", (req, res) => {
   );
 });
 
+// login
 app.post("/login", (req, res) => {
   const { email } = req.body;
 
@@ -52,7 +57,7 @@ app.post("/login", (req, res) => {
   });
 });
 
-// register user (store in DB)
+// register
 app.post("/register", (req, res) => {
   const { name, email } = req.body;
 
@@ -68,7 +73,7 @@ app.post("/register", (req, res) => {
   });
 });
 
-// get data
+// get users
 app.get("/users", (req, res) => {
   db.query("SELECT * FROM users", (err, result) => {
     if (err) {
@@ -79,11 +84,7 @@ app.get("/users", (req, res) => {
   });
 });
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
-});
-
-// ================= COURSES =================
+/* ================= COURSES ================= */
 
 // add course
 app.post("/add-course", (req, res) => {
@@ -111,4 +112,20 @@ app.get("/courses", (req, res) => {
 
     res.json(result);
   });
+});
+
+/* ================= FRONTEND (IMPORTANT) ================= */
+
+// ✅ serve React build
+app.use(express.static(path.join(__dirname, "dist")));
+
+// ✅ handle React routing
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
+
+/* ================= START ================= */
+
+app.listen(process.env.PORT || 5000, () => {
+  console.log("Server running");
 });
